@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+from pyrogram import Client
 
 from .configs import *
 from . import shared as td
@@ -565,6 +566,44 @@ class TDesktop(BaseObject):
             password=password,
             **kwargs
         )
+
+    @staticmethod
+    async def FromPyrogram(
+            pyroClient: Client,
+            flag: Type[LoginFlag] = UseCurrentSession,
+            api: Union[Type[APIData], APIData] = API.TelegramDesktop,
+            password: str = None
+    ):
+        """Create an instance of `TDesktop` from `Client`.
+
+        ### Arguments:
+            pyroClient (`Client`):
+                The `Client` you want to convert from.
+
+            flag (`LoginFlag`, default=`UseCurrentSession`):
+                The login flag. Read more `[here](LoginFlag)`.
+                This value currently supports only `UseCurrentSession` value
+
+            api (`APIData`, default=`API.TelegramDesktop`):
+                Which API to use. Read more `[here](API)`.
+
+            password (`str`, default=`None`):
+                Two-step verification password if needed.
+        """
+        Expects(
+            flag == UseCurrentSession,
+            LoginFlagInvalid("FromPyrogram() method currently supports only UseCurrentSession flag")
+        )
+
+        _self = TDesktop()
+        _self.__generateLocalKey()
+
+        await td.Account.FromPyrogram(
+            pyroClient, flag=flag, api=api, password=password, owner=_self
+        )
+
+        return _self
+
 
     @staticmethod
     async def FromTelethon(

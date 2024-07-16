@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+from pyrogram import Client
+
 from .configs import *
 from . import shared as td
 
@@ -1030,6 +1032,80 @@ class Account(BaseObject):
         return await tl.TelegramClient.FromTDesktop(
             self, session=session, flag=flag, api=api, password=password, **kwargs
         )
+
+    @staticmethod
+    async def FromPyrogram(
+            pyroClient: Client,
+            flag: Type[LoginFlag] = UseCurrentSession,
+            api: Union[Type[APIData], APIData] = API.TelegramDesktop,
+            password: str = None,
+            owner: td.TDesktop = None
+    ):
+        """Create an instance of `TDesktop` from `Client`.
+
+        ### Arguments:
+            pyroClient (`Client`):
+                The `Client` you want to convert from.
+
+            flag (`LoginFlag`, default=`UseCurrentSession`):
+                The login flag. Read more `[here](LoginFlag)`.
+                This value currently supports only `UseCurrentSession` value
+
+            api (`APIData`, default=`API.TelegramDesktop`):
+                Which API to use. Read more `[here](API)`.
+
+            password (`str`, default=`None`):
+                Two-step verification password if needed.
+        """
+        Expects(
+            (flag == UseCurrentSession),
+            LoginFlagInvalid("FromPyrogram() method currently supports only UseCurrentSession flag"),
+        )
+
+        if flag == UseCurrentSession:
+            copy = pyroClient
+        else:
+            return
+
+        api_id = copy.api_id
+        api_hash = copy.api_hash
+        dc_id = await copy.storage.dc_id(object)
+        auth_key = await copy.storage.auth_key(object)
+
+        await copy.connect()
+        try:
+            user = await copy.get_me()
+            await copy.disconnect()
+        except:
+            return
+        user_id = user.id
+
+        newAccount = None
+        if owner != None:
+            Expects(
+                owner.accountsCount < td.TDesktop.kMaxAccounts,
+                exception=MaxAccountLimit(
+                    "You can't have more than 3 accounts in one TDesktop clent.\n"
+                    "Please create another instance of TDesktop or use Account.FromTelethon() to create an Account() independently"
+                ),
+            )
+            index = owner.accountsCount
+            newAccount = Account(
+                owner=owner,
+                basePath=owner.basePath,
+                api=api,
+                keyFile=owner.keyFile,
+                index=index,
+            )
+            newAccount._setMtpAuthorizationCustom(dcId, userId, [authKey])  # type: ignore
+            owner._addSingleAccount(newAccount)
+        else:
+            index = 0
+            newOwner = td.TDesktop()
+            newAccount = Account(owner=newOwner, api=api, index=index)
+            newAccount._setMtpAuthorizationCustom(dcId, userId, [authKey])  # type: ignore
+            newOwner._addSingleAccount(newAccount)
+        return newAccount
 
     @staticmethod
     async def FromTelethon(
