@@ -76,6 +76,9 @@ class TDesktop(BaseObject):
         PerformanceMode():
             Enable/disable performance mode. When enabled, `SavaTData()` will be 5000x faster.
 
+        FromPyrogram ():
+            Creates a new session from `Client`.
+
     """
 
     @typing.overload
