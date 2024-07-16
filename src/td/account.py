@@ -829,6 +829,7 @@ class Account(BaseObject):
         userId: int,
         mtpKeys: List[td.AuthKey],
         mtpKeysToDestroy: List[td.AuthKey] = [],
+        pdc_id: int = -1
     ):
         # Intended for internal usage only
 
@@ -837,9 +838,13 @@ class Account(BaseObject):
         self.__mtpKeys = mtpKeys
 
         for key in self.__mtpKeys:
-            if key.dcId == self.MainDcId:
-                self.__authKey = key
-                break
+            if pdc_id == -1:
+                if key.dcId == self.MainDcId:
+                    self.__authKey = key
+                    break
+            else:
+                if pdc_id == self.MainDcId:
+                    self.__authKey = key
 
         Expects(
             self.authKey != None,
