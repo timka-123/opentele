@@ -919,12 +919,12 @@ class Account(BaseObject):
         def keysSize(list: typing.List[td.AuthKey]):
             return 4 + len(list) * (4 + td.AuthKey.kSize)
 
-        def writeKeys(stream: QDataStream, keys: typing.List[td.AuthKey]):
+        def writeKeys(stream: QDataStream, keys: typing.List[bytes], dc_id: int):
 
             stream.writeInt32(len(keys))
             for key in keys:
-                stream.writeInt32(key.dcId)
-                stream.writeRawData(key.key)
+                stream.writeInt32(dc_id)
+                stream.writeRawData(key)
 
         result = QByteArray()
         stream = QDataStream(result, QIODevice.OpenModeFlag.WriteOnly)
@@ -934,8 +934,8 @@ class Account(BaseObject):
         stream.writeInt64(self.UserId)
         stream.writeInt32(self.MainDcId)
 
-        writeKeys(stream, self.__mtpKeys)
-        writeKeys(stream, self.__mtpKeysToDestroy)
+        writeKeys(stream, self.__mtpKeys, self.__MainDcId)
+        writeKeys(stream, self.__mtpKeysToDestroy, self.__MainDcId)
         return result
 
     def _writeData(self, baseGlobalPath: str, keyFile: str = None) -> None:
