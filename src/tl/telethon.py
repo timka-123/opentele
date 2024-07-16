@@ -901,7 +901,7 @@ class TelegramClient(telethon.TelegramClient, BaseObject):
                 auth_session = session
 
         auth_session.set_dc(endpoint.id, endpoint.ip, endpoint.port)  # type: ignore
-        auth_session.auth_key = AuthKey(account.authKey.key)  # type: ignore
+        auth_session.auth_key = AuthKey(account.authKey)  # type: ignore
 
         client = TelegramClient(auth_session, api=account.api, **kwargs)
 
