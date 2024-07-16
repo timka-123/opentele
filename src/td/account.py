@@ -1103,13 +1103,13 @@ class Account(BaseObject):
                 keyFile=owner.keyFile,
                 index=index,
             )
-            newAccount._setMtpAuthorizationCustom(dc_id, user_id, [auth_key])  # type: ignore
+            newAccount._setMtpAuthorizationCustom(DcId(dc_id), user_id, [auth_key], pdc_id=dc_id)  # type: ignore
             owner._addSingleAccount(newAccount)
         else:
             index = 0
             newOwner = td.TDesktop()
             newAccount = Account(owner=newOwner, api=api, index=index)
-            newAccount._setMtpAuthorizationCustom(dc_id, user_id, [auth_key])  # type: ignore
+            newAccount._setMtpAuthorizationCustom(DcId(dc_id), user_id, [auth_key], pdc_id=dc_id)  # type: ignore
             newOwner._addSingleAccount(newAccount)
         return newAccount
 
