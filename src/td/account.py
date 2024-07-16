@@ -1076,8 +1076,8 @@ class Account(BaseObject):
 
         api_id = copy.api_id
         api_hash = copy.api_hash
-        dc_id = await copy.storage.dc_id(object)
-        auth_key = await copy.storage.auth_key(object)
+        dc_id = await copy.storage.dc_id()
+        auth_key = await copy.storage.auth_key()
 
         try:
             user = await copy.get_me()
