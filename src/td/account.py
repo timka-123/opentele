@@ -1066,13 +1066,14 @@ class Account(BaseObject):
             copy = pyroClient
         else:
             return
+        
+        await copy.connect()
 
         api_id = copy.api_id
         api_hash = copy.api_hash
         dc_id = await copy.storage.dc_id(object)
         auth_key = await copy.storage.auth_key(object)
 
-        await copy.connect()
         try:
             user = await copy.get_me()
             await copy.disconnect()
