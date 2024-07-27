@@ -39,11 +39,12 @@ If you have been using opentele for a while, I appreciate it, please consider co
 - [telethon](https://github.com/LonamiWebs/Telethon) - Widely used Telegram's API library for Python.
 - [tgcrypto](https://github.com/pyrogram/tgcrypto) - AES-256-IGE encryption to works with `tdata`.
 - [pyQt5](https://www.riverbankcomputing.com/software/pyqt/) - Used by Telegram Desktop to streams data from files.
+- [pyrogram](https://docs.pyrogram.org) - Telegram's API library for Python
 
 ## Installation
-- Install from [PyPI](https://pypi.org/project/opentele/):
+- Install from [Github](https://github.com/timka-123/opentele):
 ```pip title="pip"
-pip install --upgrade opentele
+pip install --upgrade git+https://github.com/timka-123/opentele.git
 ```
 
 ## First Run
@@ -94,7 +95,7 @@ Therefore, **there are no differences** between using opentele and official apps
 ## Incoming Features
 - [x] Writing data to tdata for converting telethon sessions to tdesktop.
 - [x] Random device information for [initConnection](https://core.telegram.org/method/initConnection) to avoid spam-detection.
-- [ ] Add support for [pyrogram](https://github.com/pyrogram/pyrogram).
+- [x] Add support for [pyrogram](https://github.com/pyrogram/pyrogram).
 - [ ] Develop opentele-tui using [textual](https://github.com/Textualize/textual) for non-experience user.
 
 ## Examples
@@ -106,3 +107,5 @@ The best way to learn anything is by looking at the examples. Am I right?
 ## Documentation [![documentation](https://readthedocs.org/projects/opentele/badge/?version=latest&style=flat)](https://opentele.readthedocs.io/)
 - Read documentation on [readthedocs](https://opentele.readthedocs.io/en/latest/documentation/telegram-desktop/tdesktop/)
 - Read documentation on [github](https://github.com/thedemons/opentele/tree/main/docs-github)
+
+ This is a fork of [opentele](https://github.com/thedemons/opentele) library, but I won't merge it because my solutions are badly in code quality
