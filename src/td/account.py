@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from pyrogram import Client
+from pyrogram.storage.sqlite_storage import SQLiteStorage
 
 from .configs import *
 from . import shared as td
@@ -1037,6 +1038,90 @@ class Account(BaseObject):
         return await tl.TelegramClient.FromTDesktop(
             self, session=session, flag=flag, api=api, password=password, **kwargs
         )
+    
+    async def ToPyrogram(
+            self,
+            session: str,
+            flag: Type[LoginFlag] = UseCurrentSession,
+            api: Union[Type[APIData], APIData] = API.TelegramDesktop,
+            password: str = None,
+            **kwargs,
+    ) -> Client:
+        """Generated a pyrogram client from TDesktop object
+
+        Args:
+            session (str): session name
+            flag (Type[LoginFlag], optional): use current session or create new. Currently supports only `UseCurrentSession`. Defaults to UseCurrentSession.
+            api (Union[Type[APIData], APIData], optional): API data for new client. Defaults to API.TelegramDesktop.
+            password (str, optional): 2FA password for account. Defaults to None.
+
+        Raises:
+            TelethonUnauthorized: TDesktop object has not logged-in accounts
+
+        Returns:
+            Client: A pyrogram client that can be used in Pyrogram library
+        """
+        Expects(
+            flag == UseCurrentSession,
+            LoginFlagInvalid("ToPyrogram() method currently supports only UseCurrentSession flag"),
+        )
+
+        Expects(
+            account.isLoaded(),
+            TDesktopNotLoaded(
+                "You need to load accounts from a tdata folder first"
+            ),
+        )
+        Expects(
+            account.accountsCount > 0,
+            TDesktopHasNoAccount(
+                "There is no account in this instance of TDesktop"
+            ),
+        )
+        assert self.mainAccount
+        account = self.mainAccount
+
+        if (flag == UseCurrentSession) and not (
+            isinstance(api, APIData) or APIData.__subclasscheck__(api)
+        ):  # nocov
+
+            warnings.warn(  # type: ignore
+                "\nIf you use an existing Telegram Desktop session "
+                "with unofficial API_ID and API_HASH, "
+                "Telegram might ban your account because of suspicious activities.\n"
+                "Please use the default APIs to get rid of this."
+            )
+
+        endpoints = self._local.config.endpoints(self.MainDcId)
+        address = td.MTP.DcOptions.Address.IPv4
+        protocol = td.MTP.DcOptions.Protocol.Tcp
+
+        # Expects(
+        #     connection == ConnectionTcpFull,
+        #     "Other connection type is not supported yet",
+        # )
+        Expects(len(endpoints[address][protocol]) > 0, "Couldn't find endpoint for this account, something went wrong?")  # type: ignore
+
+        
+        if flag == UseCurrentSession:
+            auth_storage = SQLiteStorage()
+            await auth_storage.auth_key(self.authKey.key)
+            await auth_storage.dc_id(self.MainDcId)
+            await auth_storage.api_id(api.api_id)
+
+            session_string = await auth_storage.export_session_string()
+
+            return Client(
+                api_id=api.api_id,
+                api_hash=api.api_hash,
+                session_name=session,
+                session_string=session_string,
+                device_model=api.device_model,
+                app_version=api.app_version,
+                system_version=api.system_version
+            )            
+            
+
 
     @staticmethod
     async def FromPyrogram(
